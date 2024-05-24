@@ -85,7 +85,7 @@ if uploaded_files:
     # 愛媛県の基地局
 
     df_ehime = pd.read_csv(
-        "https://raku10ehime.github.io/map/list.csv",
+        "https://raku10ehime.github.io/map/ehime.csv",
         index_col=0,
         dtype={"sector": "Int64", "sub6": "Int64", "ミリ波": "Int64"},
     )
@@ -112,7 +112,15 @@ if uploaded_files:
             zoom_start=14,
         )
 
-        for i, r in df7.iterrows():
+        for _, r in df_ehime.iterrows():
+            folium.Marker(
+                location=[r["緯度"], r["経度"]],
+                popup=folium.Popup(f'<p>{r["場所"]}</p>', max_width=300),
+                tooltip=r["場所"],
+                icon=folium.Icon(color=r["color"], icon=r["icon"]),
+            ).add_to(m)
+
+        for _, r in df7.iterrows():
             if r["radius"] > 0:
                 folium.Circle(
                     location=[r["lat"], r["lon"]],
