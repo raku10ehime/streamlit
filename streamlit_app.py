@@ -4,6 +4,59 @@ import streamlit as st
 from streamlit_folium import st_folium
 
 
+@st.cache_data
+def merge_data(uploaded_files):
+    dfs = [
+        pd.read_csv(uploaded_file, parse_dates=["measured_at", "discovered_at"], dtype={"ta": str}).dropna(
+            how="all", axis=1
+        )
+        for uploaded_file in uploaded_files
+    ]
+
+    # CSV結合
+    df = pd.concat(dfs, ignore_index=True)
+
+    # 日時変換
+    df["measured_at"] = df["measured_at"].dt.tz_convert("Asia/Tokyo").dt.tz_localize(None)
+    df["discovered_at"] = df["discovered_at"].dt.tz_convert("Asia/Tokyo").dt.tz_localize(None)
+
+    df["cell_no"] = df["short_cell_id"] & 0x3FFF
+
+    # タイプ別
+    df["type"] = pd.cut(
+        df["cell_no"],
+        bins=[0, 4000, 4500, 5000, 10000, 15000, 16384],
+        labels=["マクロセル", "ミニマクロ", "衛星エントランス", "Casa", "屋内局", "ピコセル"],
+    )
+
+    # TA調整
+    df["calibration"] = (
+        df["type"]
+        .replace(
+            {"マクロセル": 0, "ミニマクロ": 0, "衛星エントランス": ta_satellite, "Casa": 0, "屋内局": 0, "ピコセル": 0}
+        )
+        .astype(int)
+    )
+
+    df["short_cell_id"] = df["short_cell_id"].astype(int)
+    df["rnc"] = df["rnc"].astype(int)
+
+    result = df.query("188743680 <= cell_id < 190023680")
+
+    return result
+
+
+@st.cache_data
+def read_ehime():
+    result = pd.read_csv(
+        "https://raku10ehime.github.io/map/ehime.csv",
+        index_col=0,
+        dtype={"sector": "Int64", "sub6": "Int64", "ミリ波": "Int64"},
+    )
+
+    return result
+
+
 def enblcid_split(df0):
     df1 = df0.copy()
 
@@ -31,8 +84,12 @@ def highlight_min(s):
     return ["background-color: yellow" if v else "" for v in is_min.fillna(False)]
 
 
+# プログラム
+
 st.set_page_config(page_title="TowerCollectorファイル分析")
 st.title("TowerCollectorファイル分析")
+
+# ファイル読み込み
 
 st.subheader("ファイル")
 uploaded_files = st.file_uploader("TowerCollector CSV", type="csv", key="csv", accept_multiple_files=True)
@@ -43,43 +100,7 @@ ta_satellite = st.number_input("衛星エントランスTA調整", 0, 150, 4, st
 
 
 if uploaded_files:
-    dfs = [
-        pd.read_csv(uploaded_file, parse_dates=["measured_at", "discovered_at"], dtype={"ta": str}).dropna(
-            how="all", axis=1
-        )
-        for uploaded_file in uploaded_files
-    ]
-
-    # CSV結合
-    df0 = pd.concat(dfs, ignore_index=True)
-
-    # 日時変換
-    df0["measured_at"] = df0["measured_at"].dt.tz_convert("Asia/Tokyo").dt.tz_localize(None)
-    df0["discovered_at"] = df0["discovered_at"].dt.tz_convert("Asia/Tokyo").dt.tz_localize(None)
-
-    df0["cell_no"] = df0["short_cell_id"] & 0x3FFF
-
-    # タイプ別
-    df0["type"] = pd.cut(
-        df0["cell_no"],
-        bins=[0, 4000, 4500, 5000, 10000, 15000, 16384],
-        labels=["マクロセル", "ミニマクロ", "衛星エントランス", "Casa", "屋内局", "ピコセル"],
-    )
-
-    # TA調整
-    df0["calibration"] = (
-        df0["type"]
-        .replace(
-            {"マクロセル": 0, "ミニマクロ": 0, "衛星エントランス": ta_satellite, "Casa": 0, "屋内局": 0, "ピコセル": 0}
-        )
-        .astype(int)
-    )
-
-    df0["short_cell_id"] = df0["short_cell_id"].astype(int)
-    df0["rnc"] = df0["rnc"].astype(int)
-
-    # 範囲指定
-    df1 = df0.query("188743680 <= cell_id < 190023680").copy()
+    df1 = merge_data(uploaded_files)
 
     df1["id"] = df1["short_cell_id"].astype(str) + "-" + df1["rnc"].astype(str)
     df1["ta"] = pd.to_numeric(df1["ta"], errors="coerce").astype("Int64")
@@ -95,11 +116,7 @@ if uploaded_files:
 
     # 愛媛県の基地局
 
-    df_ehime = pd.read_csv(
-        "https://raku10ehime.github.io/map/ehime.csv",
-        index_col=0,
-        dtype={"sector": "Int64", "sub6": "Int64", "ミリ波": "Int64"},
-    )
+    df_ehime = read_ehime()
 
     df3 = df_ehime.dropna(subset=["eNB-LCID"])
     df4 = enblcid_split(df3)
