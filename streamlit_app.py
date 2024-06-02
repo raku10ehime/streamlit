@@ -4,7 +4,6 @@ import streamlit as st
 from streamlit_folium import st_folium
 
 
-@st.cache_data
 def merge_data(uploaded_files):
     dfs = [
         pd.read_csv(uploaded_file, parse_dates=["measured_at", "discovered_at"], dtype={"ta": str}).dropna(
