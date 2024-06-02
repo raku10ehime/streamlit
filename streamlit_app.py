@@ -1,4 +1,5 @@
 import folium
+import folium.plugins as plugins
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
@@ -169,6 +170,15 @@ if uploaded_files:
                         location=[r["lat"], r["lon"]],
                         radius=r["radius"],
                         color=colors[r["color"]],
+                    ).add_to(m)
+
+                if not pd.isnull(r["ta"]):
+                    folium.Marker(
+                        location=[r["lat"], r["lon"]],
+                        icon=plugins.BeautifyIcon(
+                            number=r["ta"],
+                            border_color=colors[r["color"]],
+                        ),
                     ).add_to(m)
 
             # マップをストリームリットに表示
