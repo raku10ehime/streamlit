@@ -175,9 +175,15 @@ if uploaded_files:
                 if not pd.isnull(r["ta"]):
                     folium.Marker(
                         location=[r["lat"], r["lon"]],
-                        icon=plugins.BeautifyIcon(
-                            number=r["ta"],
-                            border_color=colors[r["color"]],
+                        popup=folium.Popup(f'<p>{r["rsrp"]}</p>', max_width=300),
+                        icon=plugins.BeautifyIcon(number=r["ta"], border_color=colors[r["color"]],
+                        ),
+                    ).add_to(m)
+                else:
+                    folium.Marker(
+                        location=[r["lat"], r["lon"]],
+                        popup=folium.Popup(f'<p>{r["rsrp"]}</p>', max_width=300),
+                        icon=plugins.BeautifyIcon(icon_shape="circle-dot", border_color=r["color"])
                         ),
                     ).add_to(m)
 
