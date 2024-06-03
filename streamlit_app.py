@@ -183,7 +183,7 @@ if uploaded_files:
                     folium.Marker(
                         location=[r["lat"], r["lon"]],
                         popup=folium.Popup(f'<p>{r["rsrp"]}</p>', max_width=300),
-                        icon=plugins.BeautifyIcon(icon_shape="circle-dot", border_color=r["color"]],
+                        icon=plugins.BeautifyIcon(icon_shape="circle-dot", border_color=colors[r["color"]],
                         ),
                     ).add_to(m)
 
