@@ -149,8 +149,9 @@ if uploaded_files:
 
             m = folium.Map(
                 location=[df7["lat"].mean(), df7["lon"].mean()],
-                tiles="https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png",
-                attr='&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+                tiles="https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}",
+                subdomains=["mt0", "mt1", "mt2", "mt3"],
+                attr='<a href='https://developers.google.com/maps/documentation'>© Google</a>',
                 zoom_start=14,
             )
 
