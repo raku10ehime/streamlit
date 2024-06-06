@@ -151,7 +151,7 @@ if uploaded_files:
                 location=[df7["lat"].mean(), df7["lon"].mean()],
                 tiles="https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}",
                 subdomains=["mt0", "mt1", "mt2", "mt3"],
-                attr='<a href='https://developers.google.com/maps/documentation'>© Google</a>',
+                attr='<a href="https://developers.google.com/maps/documentation">© Google</a>',
                 zoom_start=14,
             )
 
