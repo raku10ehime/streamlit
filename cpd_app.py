@@ -77,7 +77,7 @@ m = folium.Map(
     location=[st.session_state.lat, st.session_state.lng],
     tiles="https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png",
     attr='&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
-    zoom_start=16,
+    zoom_start=14,
 )
 
 # データフレームからマーカーを追加
