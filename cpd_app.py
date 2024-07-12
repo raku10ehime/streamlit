@@ -122,7 +122,7 @@ if st_data:
     filtered_df.sort_values("cell", inplace=True)
 
     # 結果を表示
-    df3 = filtered_df[["enb-lcid", "unit", "created", "updated", "type"]].reset_index(drop=True)
+    df3 = filtered_df[["enb-lcid", "unit", "created", "updated", "lat", "lon"]].reset_index(drop=True)
 
     st.dataframe(
         df3,
