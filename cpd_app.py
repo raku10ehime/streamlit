@@ -46,9 +46,9 @@ def load_data():
 
 # 位置情報初期化
 if "lat" not in st.session_state:
-    st.session_state.lat = 34.0663183
+    st.session_state.lat = 33.8391
 if "lng" not in st.session_state:
-    st.session_state.lng = 132.997528
+    st.session_state.lng = 132.7655
 
 
 # タイトル
