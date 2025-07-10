@@ -14,11 +14,14 @@ def merge_data(uploaded_files):
     ]
 
     # CSV結合
-    df = pd.concat(dfs, ignore_index=True)
+    df = pd.concat(dfs, ignore_index=True).query("mcc == 440 and mnc == 11")
 
     # 日時変換
     df["measured_at"] = df["measured_at"].dt.tz_convert("Asia/Tokyo").dt.tz_localize(None)
     df["discovered_at"] = df["discovered_at"].dt.tz_convert("Asia/Tokyo").dt.tz_localize(None)
+
+    df["short_cell_id"] = df["short_cell_id"].astype(int)
+    df["rnc"] = df["rnc"].astype(int)
 
     df["cell_no"] = df["short_cell_id"] & 0x3FFF
 
@@ -37,9 +40,6 @@ def merge_data(uploaded_files):
         )
         .astype(int)
     )
-
-    df["short_cell_id"] = df["short_cell_id"].astype(int)
-    df["rnc"] = df["rnc"].astype(int)
 
     result = df.query("188743680 <= cell_id < 190023680")
 
